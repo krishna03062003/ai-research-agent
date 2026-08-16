@@ -1,22 +1,33 @@
 import React, { useState, useRef, useEffect } from "react";
-import { Send, UploadCloud, CornerDownLeft, Sparkles } from "lucide-react";
+import { Send, UploadCloud } from "lucide-react";
 
-export function ChatInput({ onSendMessage, onOpenUpload, isLoading, hasDocument }) {
+export function ChatInput({
+  onSendMessage,
+  onOpenUpload,
+  isLoading,
+  hasDocument,
+}) {
   const [input, setInput] = useState("");
   const textareaRef = useRef(null);
 
   useEffect(() => {
     if (textareaRef.current) {
       textareaRef.current.style.height = "auto";
-      textareaRef.current.style.height = `${Math.min(textareaRef.current.scrollHeight, 180)}px`;
+      textareaRef.current.style.height = `${Math.min(
+        textareaRef.current.scrollHeight,
+        180
+      )}px`;
     }
   }, [input]);
 
   const handleSubmit = (e) => {
     if (e) e.preventDefault();
+
     if (!input.trim() || isLoading) return;
+
     onSendMessage(input);
     setInput("");
+
     if (textareaRef.current) {
       textareaRef.current.style.height = "auto";
     }
@@ -31,12 +42,15 @@ export function ChatInput({ onSendMessage, onOpenUpload, isLoading, hasDocument 
 
   return (
     <div
+      className="chat-input-wrapper"
       style={{
         padding: "12px 16px 20px 16px",
-        background: "linear-gradient(to top, rgba(8, 12, 20, 0.95) 70%, transparent 100%)",
+        background:
+          "linear-gradient(to top, rgba(8, 12, 20, 0.95) 70%, transparent 100%)",
         width: "100%",
         maxWidth: "920px",
         margin: "0 auto",
+        minWidth: 0,
       }}
     >
       <form
@@ -51,9 +65,15 @@ export function ChatInput({ onSendMessage, onOpenUpload, isLoading, hasDocument 
           gap: "10px",
           boxShadow: "var(--shadow-md)",
           transition: "border-color var(--transition-fast)",
+          width: "100%",
+          minWidth: 0,
         }}
-        onFocus={(e) => (e.currentTarget.style.borderColor = "var(--border-focus)")}
-        onBlur={(e) => (e.currentTarget.style.borderColor = "var(--border-card)")}
+        onFocus={(e) =>
+          (e.currentTarget.style.borderColor = "var(--border-focus)")
+        }
+        onBlur={(e) =>
+          (e.currentTarget.style.borderColor = "var(--border-card)")
+        }
       >
         {/* Upload Document Shortcut */}
         <button
@@ -74,8 +94,12 @@ export function ChatInput({ onSendMessage, onOpenUpload, isLoading, hasDocument 
             transition: "all var(--transition-fast)",
           }}
           title={hasDocument ? "Replace active PDF" : "Upload PDF for RAG"}
-          onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(255, 255, 255, 0.1)")}
-          onMouseLeave={(e) => (e.currentTarget.style.background = "rgba(255, 255, 255, 0.05)")}
+          onMouseEnter={(e) =>
+            (e.currentTarget.style.background = "rgba(255, 255, 255, 0.1)")
+          }
+          onMouseLeave={(e) =>
+            (e.currentTarget.style.background = "rgba(255, 255, 255, 0.05)")
+          }
         >
           <UploadCloud size={17} />
         </button>
@@ -91,6 +115,8 @@ export function ChatInput({ onSendMessage, onOpenUpload, isLoading, hasDocument 
           rows={1}
           style={{
             flex: 1,
+            minWidth: 0,
+            width: "100%",
             background: "transparent",
             border: "none",
             outline: "none",
@@ -99,6 +125,9 @@ export function ChatInput({ onSendMessage, onOpenUpload, isLoading, hasDocument 
             lineHeight: 1.5,
             resize: "none",
             maxHeight: "180px",
+            overflowY: "auto",
+            overflowX: "hidden",
+            overflowWrap: "anywhere",
             fontFamily: "var(--font-sans)",
             padding: "6px 0",
           }}
@@ -109,8 +138,14 @@ export function ChatInput({ onSendMessage, onOpenUpload, isLoading, hasDocument 
           type="submit"
           disabled={!input.trim() || isLoading}
           style={{
-            background: !input.trim() || isLoading ? "rgba(255, 255, 255, 0.08)" : "var(--accent-indigo)",
-            color: !input.trim() || isLoading ? "var(--text-dim)" : "#ffffff",
+            background:
+              !input.trim() || isLoading
+                ? "rgba(255, 255, 255, 0.08)"
+                : "var(--accent-indigo)",
+            color:
+              !input.trim() || isLoading
+                ? "var(--text-dim)"
+                : "#ffffff",
             border: "none",
             borderRadius: "var(--radius-sm)",
             width: "36px",
@@ -118,9 +153,13 @@ export function ChatInput({ onSendMessage, onOpenUpload, isLoading, hasDocument 
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
-            cursor: !input.trim() || isLoading ? "not-allowed" : "pointer",
+            cursor:
+              !input.trim() || isLoading ? "not-allowed" : "pointer",
             flexShrink: 0,
-            boxShadow: !input.trim() || isLoading ? "none" : "var(--shadow-glow-indigo)",
+            boxShadow:
+              !input.trim() || isLoading
+                ? "none"
+                : "var(--shadow-glow-indigo)",
             transition: "all var(--transition-fast)",
           }}
           title="Send query (Enter)"
@@ -130,6 +169,7 @@ export function ChatInput({ onSendMessage, onOpenUpload, isLoading, hasDocument 
       </form>
 
       <div
+        className="chat-input-hint"
         style={{
           display: "flex",
           alignItems: "center",
@@ -138,11 +178,17 @@ export function ChatInput({ onSendMessage, onOpenUpload, isLoading, hasDocument 
           marginTop: "8px",
           fontSize: "0.72rem",
           color: "var(--text-dim)",
+          textAlign: "center",
         }}
       >
         <span>
-          Press <strong style={{ color: "var(--text-muted)" }}>Enter</strong> to send,{" "}
-          <strong style={{ color: "var(--text-muted)" }}>Shift + Enter</strong> for new line
+          Press{" "}
+          <strong style={{ color: "var(--text-muted)" }}>Enter</strong> to
+          send,{" "}
+          <strong style={{ color: "var(--text-muted)" }}>
+            Shift + Enter
+          </strong>{" "}
+          for new line
         </span>
       </div>
     </div>
