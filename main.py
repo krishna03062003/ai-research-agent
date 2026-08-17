@@ -30,6 +30,7 @@ app.add_middleware(
 
 class Question(BaseModel):
     question: str
+    force_route: str | None = None
 
 
 @app.get("/")
@@ -50,7 +51,8 @@ async def health():
 async def ask_question(data: Question):
 
     result = await process_question_detailed(
-        data.question
+        data.question,
+        force_route=data.force_route
     )
 
     return {
@@ -60,7 +62,9 @@ async def ask_question(data: Question):
         "confidence": result.get("confidence"),
         "sources": result.get("sources", []),
         "document_citations": result.get("document_citations", []),
-        "metadata": result.get("metadata", {})
+        "metadata": result.get("metadata", {}),
+        "can_search_web": result.get("can_search_web", False),
+        "original_question": result.get("original_question", data.question)
     }
 
 

@@ -7,7 +7,7 @@ export function useChat() {
   const [currentStep, setCurrentStep] = useState(null);
   const [error, setError] = useState(null);
 
-  const sendMessage = useCallback(async (questionText) => {
+  const sendMessage = useCallback(async (questionText, { forceRoute = null } = {}) => {
     const trimmed = questionText.trim();
     if (!trimmed || isLoading) return;
 
@@ -15,17 +15,25 @@ export function useChat() {
     const userMessage = {
       id: userMessageId,
       sender: "user",
-      content: trimmed,
+      content: forceRoute === "WEB" ? `[Web Search] ${trimmed}` : trimmed,
       timestamp: new Date(),
     };
 
     setMessages((prev) => [...prev, userMessage]);
     setIsLoading(true);
     setError(null);
-    setCurrentStep("Classifying query intent...");
+    setCurrentStep(
+      forceRoute === "WEB"
+        ? "Searching authoritative web sources..."
+        : "Classifying query intent..."
+    );
 
     const stepTimer1 = setTimeout(() => {
-      setCurrentStep("Executing research & vector search...");
+      setCurrentStep(
+        forceRoute === "WEB"
+          ? "Ranking & verifying web evidence..."
+          : "Executing research & vector search..."
+      );
     }, 1200);
 
     const stepTimer2 = setTimeout(() => {
@@ -33,7 +41,7 @@ export function useChat() {
     }, 2400);
 
     try {
-      const response = await askQuestion(trimmed);
+      const response = await askQuestion(trimmed, forceRoute);
 
       clearTimeout(stepTimer1);
       clearTimeout(stepTimer2);
@@ -47,6 +55,9 @@ export function useChat() {
         sources: response.sources || [],
         document_citations: response.document_citations || [],
         metadata: response.metadata || {},
+        can_search_web: response.can_search_web || false,
+        original_question: response.original_question || trimmed,
+        actionTaken: null,
         timestamp: new Date(),
       };
 
@@ -70,6 +81,23 @@ export function useChat() {
     }
   }, [isLoading]);
 
+  const handleConfirmWebSearch = useCallback((msgId, originalQuestion) => {
+    setMessages((prev) =>
+      prev.map((msg) =>
+        msg.id === msgId ? { ...msg, actionTaken: "yes" } : msg
+      )
+    );
+    sendMessage(originalQuestion, { forceRoute: "WEB" });
+  }, [sendMessage]);
+
+  const handleDismissWebSearch = useCallback((msgId) => {
+    setMessages((prev) =>
+      prev.map((msg) =>
+        msg.id === msgId ? { ...msg, actionTaken: "no" } : msg
+      )
+    );
+  }, []);
+
   const clearChat = useCallback(() => {
     setMessages([]);
     setError(null);
@@ -82,5 +110,7 @@ export function useChat() {
     error,
     sendMessage,
     clearChat,
+    handleConfirmWebSearch,
+    handleDismissWebSearch,
   };
 }

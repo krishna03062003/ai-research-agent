@@ -10,6 +10,8 @@ export function ChatContainer({
   onSelectPrompt,
   hasDocument,
   documentName,
+  onConfirmWebSearch,
+  onDismissWebSearch,
 }) {
   const scrollEndRef = useRef(null);
 
@@ -54,7 +56,12 @@ export function ChatContainer({
       }}
     >
       {messages.map((msg) => (
-        <MessageItem key={msg.id} message={msg} />
+        <MessageItem
+          key={msg.id}
+          message={msg}
+          onConfirmWebSearch={onConfirmWebSearch}
+          onDismissWebSearch={onDismissWebSearch}
+        />
       ))}
 
       {/* Dynamic Step Loading Indicator */}

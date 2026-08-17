@@ -9,6 +9,7 @@ import {
   RotateCcw,
   BookOpen,
   HelpCircle,
+  X,
 } from "lucide-react";
 import { DocumentCard } from "./DocumentCard";
 import { StatusIndicator } from "./StatusIndicator";
@@ -31,58 +32,63 @@ export function Sidebar({
   ];
 
   return (
-    <aside
-      style={{
-        width: "320px",
-        minWidth: "320px",
-        height: "100vh",
-        background: "var(--bg-secondary)",
-        borderRight: "1px solid var(--border-subtle)",
-        display: "flex",
-        flexDirection: "column",
-        justifyContent: "space-between",
-        padding: "20px 16px",
-        zIndex: 30,
-        transition: "transform var(--transition-normal)",
-      }}
-      className={`sidebar ${isOpen ? "open" : ""}`}
-    >
+    <aside className={`sidebar ${isOpen ? "open" : ""}`}>
       {/* Top Section */}
-      <div style={{ display: "flex", flexDirection: "column", gap: "20px", overflowY: "auto" }}>
+      <div style={{ display: "flex", flexDirection: "column", gap: "18px", overflowY: "auto" }}>
         {/* Brand Header */}
-        <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-          <div
-            style={{
-              width: "40px",
-              height: "40px",
-              borderRadius: "var(--radius-md)",
-              background: "var(--gradient-brand)",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              color: "#ffffff",
-              boxShadow: "var(--shadow-glow-indigo)",
-            }}
-          >
-            <Bot size={22} />
-          </div>
-
-          <div>
-            <h1
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+            <div
               style={{
-                fontFamily: "var(--font-heading)",
-                fontSize: "1.1rem",
-                fontWeight: 700,
+                width: "38px",
+                height: "38px",
+                borderRadius: "var(--radius-md)",
+                background: "var(--gradient-brand)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
                 color: "#ffffff",
-                letterSpacing: "-0.3px",
+                boxShadow: "var(--shadow-glow-indigo)",
+                flexShrink: 0,
               }}
             >
-              ResearchAgent
-            </h1>
-            <div style={{ fontSize: "0.74rem", color: "var(--text-muted)", fontWeight: 500 }}>
-              AI Document & Research Hub
+              <Bot size={20} />
+            </div>
+
+            <div>
+              <h1
+                style={{
+                  fontFamily: "var(--font-heading)",
+                  fontSize: "1.05rem",
+                  fontWeight: 700,
+                  color: "#ffffff",
+                  letterSpacing: "-0.3px",
+                }}
+              >
+                ResearchAgent
+              </h1>
+              <div style={{ fontSize: "0.72rem", color: "var(--text-muted)", fontWeight: 500 }}>
+                AI Document & Research Hub
+              </div>
             </div>
           </div>
+
+          {/* Close button for mobile drawer */}
+          <button
+            onClick={onClose}
+            className="mobile-close-btn"
+            style={{
+              background: "transparent",
+              border: "none",
+              color: "var(--text-muted)",
+              cursor: "pointer",
+              padding: "4px",
+              display: isOpen ? "flex" : "none",
+            }}
+            title="Close sidebar"
+          >
+            <X size={20} />
+          </button>
         </div>
 
         {/* Backend Status */}
@@ -101,17 +107,17 @@ export function Sidebar({
             background: "rgba(0, 0, 0, 0.2)",
             border: "1px solid var(--border-subtle)",
             borderRadius: "var(--radius-lg)",
-            padding: "14px",
+            padding: "12px",
             display: "flex",
             flexDirection: "column",
-            gap: "10px",
+            gap: "8px",
           }}
         >
-          <div style={{ fontSize: "0.75rem", fontWeight: 700, color: "var(--text-muted)", letterSpacing: "0.5px" }}>
+          <div style={{ fontSize: "0.72rem", fontWeight: 700, color: "var(--text-muted)", letterSpacing: "0.5px" }}>
             AUTONOMOUS INTENT ROUTES
           </div>
 
-          <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
             {routesInfo.map((item, idx) => {
               const Icon = item.icon;
               return (
@@ -132,15 +138,16 @@ export function Sidebar({
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "center",
+                      flexShrink: 0,
                     }}
                   >
-                    <Icon size={15} />
+                    <Icon size={14} />
                   </div>
-                  <div>
-                    <div style={{ fontSize: "0.8rem", fontWeight: 600, color: "#e2e8f0" }}>
+                  <div style={{ minWidth: 0 }}>
+                    <div style={{ fontSize: "0.78rem", fontWeight: 600, color: "#e2e8f0" }}>
                       {item.label}
                     </div>
-                    <div style={{ fontSize: "0.7rem", color: "var(--text-muted)" }}>
+                    <div style={{ fontSize: "0.68rem", color: "var(--text-muted)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
                       {item.desc}
                     </div>
                   </div>
@@ -155,10 +162,10 @@ export function Sidebar({
       <div
         style={{
           borderTop: "1px solid var(--border-subtle)",
-          paddingTop: "14px",
+          paddingTop: "12px",
           display: "flex",
           flexDirection: "column",
-          gap: "10px",
+          gap: "8px",
         }}
       >
         <button
@@ -168,12 +175,12 @@ export function Sidebar({
             alignItems: "center",
             justifyContent: "center",
             gap: "8px",
-            padding: "9px",
+            padding: "8px",
             background: "rgba(255, 255, 255, 0.04)",
             border: "1px solid var(--border-subtle)",
             borderRadius: "var(--radius-md)",
             color: "var(--text-secondary)",
-            fontSize: "0.82rem",
+            fontSize: "0.8rem",
             fontWeight: 500,
             cursor: "pointer",
             transition: "all var(--transition-fast)",
@@ -187,10 +194,10 @@ export function Sidebar({
             e.currentTarget.style.color = "var(--text-secondary)";
           }}
         >
-          <RotateCcw size={14} /> Clear Conversation
+          <RotateCcw size={13} /> Clear Conversation
         </button>
 
-        <div style={{ textAlign: "center", fontSize: "0.7rem", color: "var(--text-dim)" }}>
+        <div style={{ textAlign: "center", fontSize: "0.68rem", color: "var(--text-dim)" }}>
           Powered by Gemini 3.5 & ChromaDB
         </div>
       </div>

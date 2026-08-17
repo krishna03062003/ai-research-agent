@@ -2,61 +2,38 @@ from app.services.embedding_service import create_embeddings
 from app.services.vector_store import search_documents
 
 
-# ---------------------------------------------------------
-# Retrieval configuration
-# ---------------------------------------------------------
-
-DISTANCE_THRESHOLD = 0.88
-MIN_GAP = 0.05
-
-
 def calculate_confidence(
     best_distance: float,
     gap: float
 ) -> float:
-
     """
-    Calculate a retrieval confidence score based on
-    semantic distance and separation margin.
+    Calculate a calibrated retrieval confidence score based on
+    semantic cosine distance and separation margin.
+    Typical Gemini cosine distance ranges:
+    - 0.00 - 0.65: High match (80% - 100%)
+    - 0.65 - 0.85: Good/Moderate match (55% - 80%)
+    - 0.85 - 0.98: Broad match (30% - 55%)
+    - > 0.98: Weak match (< 30%)
     """
+    if best_distance is None:
+        return 0.0
 
-    # Normalized distance confidence (0.40 -> 1.0, 0.90 -> 0.0)
-    distance_confidence = max(
-        0.0,
-        min(
-            1.0,
-            (0.90 - best_distance) / 0.50
-        )
-    )
+    # Smooth normalized distance confidence
+    dist_confidence = max(0.0, min(1.0, (1.02 - best_distance) / 0.55))
+    gap_confidence = max(0.0, min(1.0, (gap or 0.0) / 0.12))
 
-    gap_confidence = max(
-        0.0,
-        min(
-            1.0,
-            gap / 0.15
-        )
-    )
-
-    confidence = (
-        distance_confidence * 0.80
-        + gap_confidence * 0.20
-    )
-
-    return round(
-        confidence,
-        3
-    )
+    confidence = (dist_confidence * 0.85) + (gap_confidence * 0.15)
+    return round(max(0.05, min(1.0, confidence)), 3)
 
 
 async def retrieve_documents(
     question: str,
-    n_results: int = 5
+    n_results: int = 8
 ):
 
     # ---------------------------------------------------------
     # 1. Create query embedding
     # ---------------------------------------------------------
-
     embeddings = await create_embeddings(
         [question]
     )
@@ -76,7 +53,6 @@ async def retrieve_documents(
     # ---------------------------------------------------------
     # 2. Search vector database
     # ---------------------------------------------------------
-
     results = search_documents(
         query_embedding,
         n_results
@@ -85,7 +61,6 @@ async def retrieve_documents(
     # ---------------------------------------------------------
     # 3. Extract distances
     # ---------------------------------------------------------
-
     distances = results.get(
         "distances",
         [[]]
@@ -101,58 +76,21 @@ async def retrieve_documents(
             "results": results
         }
 
-    # ---------------------------------------------------------
-    # 4. Best result
-    # ---------------------------------------------------------
-
     best_distance = distances[0]
-
-    # ---------------------------------------------------------
-    # 5. Second-best result
-    # ---------------------------------------------------------
-
-    second_distance = (
-        distances[1]
-        if len(distances) > 1
-        else None
-    )
-
-    # ---------------------------------------------------------
-    # 6. Calculate result separation
-    # ---------------------------------------------------------
+    second_distance = distances[1] if len(distances) > 1 else None
 
     if second_distance is not None:
-
-        gap = (
-            second_distance
-            - best_distance
-        )
-
+        gap = second_distance - best_distance
     else:
-
         gap = 0.0
-
-    # ---------------------------------------------------------
-    # 7. Calculate confidence
-    # ---------------------------------------------------------
 
     confidence = calculate_confidence(
         best_distance,
         gap
     )
 
-    # ---------------------------------------------------------
-    # 8. Determine whether candidate documents exist
-    # ---------------------------------------------------------
-
-    found = (
-        best_distance
-        <= DISTANCE_THRESHOLD
-    )
-
-    # ---------------------------------------------------------
-    # 9. Return structured retrieval result
-    # ---------------------------------------------------------
+    # Candidate chunks exist in collection
+    found = len(distances) > 0
 
     return {
         "found": found,

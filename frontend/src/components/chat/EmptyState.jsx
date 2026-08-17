@@ -102,8 +102,8 @@ export function EmptyState({ onSelectPrompt, hasDocument, documentName }) {
       <div
         style={{
           display: "grid",
-          gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))",
-          gap: "14px",
+          gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 220px), 1fr))",
+          gap: "12px",
           width: "100%",
         }}
       >

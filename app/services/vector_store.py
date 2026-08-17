@@ -196,3 +196,29 @@ def get_collection_stats():
             "filename": None,
             "chunks_count": count
         }
+
+
+# =========================================================
+# Get all documents (for full summarization)
+# =========================================================
+
+def get_all_documents(limit: int = 50):
+
+    count = collection.count()
+
+    if count == 0:
+        return {
+            "documents": [],
+            "metadatas": []
+        }
+
+    limit = min(limit, count)
+    results = collection.get(
+        limit=limit,
+        include=["documents", "metadatas"]
+    )
+
+    return {
+        "documents": results.get("documents", []),
+        "metadatas": results.get("metadatas", [])
+    }

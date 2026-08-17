@@ -17,6 +17,8 @@ export function App() {
     currentStep,
     sendMessage,
     clearChat,
+    handleConfirmWebSearch,
+    handleDismissWebSearch,
   } = useChat();
 
   const {
@@ -122,6 +124,8 @@ export function App() {
           onSelectPrompt={handleSelectPrompt}
           hasDocument={documentStatus.has_document}
           documentName={documentStatus.filename}
+          onConfirmWebSearch={handleConfirmWebSearch}
+          onDismissWebSearch={handleDismissWebSearch}
         />
 
         {/* Input Bar */}

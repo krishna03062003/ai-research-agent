@@ -1,15 +1,18 @@
 const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
 
 /**
- * Send a user question to the assistant backend.
+ * Send a user question to the assistant backend with optional route override.
  */
-export async function askQuestion(question) {
+export async function askQuestion(question, forceRoute = null) {
   const response = await fetch(`${API_BASE_URL}/ask`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({ question }),
+    body: JSON.stringify({
+      question,
+      force_route: forceRoute,
+    }),
   });
 
   if (!response.ok) {

@@ -50,7 +50,7 @@
   --transition-normal: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-* {
+*, *::before, *::after {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
@@ -59,12 +59,14 @@
 html, body, #root {
   height: 100%;
   width: 100%;
+  max-width: 100%;
   background-color: var(--bg-primary);
   color: var(--text-primary);
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  overflow: hidden;
+  overflow-x: hidden;
+  overflow-y: hidden;
 }
 
 /* Custom Scrollbar */
@@ -90,7 +92,9 @@ html, body, #root {
 .app-layout {
   display: flex;
   height: 100vh;
+  height: 100dvh;
   width: 100vw;
+  max-width: 100%;
   background: radial-gradient(circle at 20% 15%, rgba(99, 102, 241, 0.08) 0%, transparent 40%),
               radial-gradient(circle at 80% 85%, rgba(14, 165, 233, 0.06) 0%, transparent 40%),
               var(--bg-primary);
@@ -104,21 +108,26 @@ html, body, #root {
   display: flex;
   flex-direction: column;
   height: 100vh;
+  height: 100dvh;
   position: relative;
   overflow: hidden;
+  min-width: 0;
+  max-width: 100%;
   background: transparent;
 }
 
-/* Top App Header (Mobile / Breadcrumb) */
+/* Top App Header (Mobile / Tablet) */
 .mobile-header {
   display: none;
   align-items: center;
   justify-content: space-between;
-  padding: 12px 16px;
+  padding: 10px 14px;
   background: var(--bg-card);
   backdrop-filter: blur(12px);
   border-bottom: 1px solid var(--border-subtle);
   z-index: 20;
+  flex-shrink: 0;
+  width: 100%;
 }
 
 @media (max-width: 768px) {
@@ -133,6 +142,7 @@ html, body, #root {
   line-height: 1.65;
   color: #e2e8f0;
   word-break: break-word;
+  overflow-wrap: anywhere;
 }
 
 .markdown-body p {
@@ -149,6 +159,7 @@ html, body, #root {
   margin-top: 1.25rem;
   margin-bottom: 0.6rem;
   font-weight: 600;
+  overflow-wrap: anywhere;
 }
 
 .markdown-body h1 { font-size: 1.35rem; }
@@ -174,6 +185,8 @@ html, body, #root {
   text-decoration: underline;
   text-underline-offset: 3px;
   transition: color var(--transition-fast);
+  word-break: break-all;
+  overflow-wrap: anywhere;
 }
 
 .markdown-body a:hover {
@@ -197,6 +210,7 @@ html, body, #root {
   padding: 2px 6px;
   border-radius: 4px;
   color: #f472b6;
+  word-break: break-all;
 }
 
 .markdown-body pre {
@@ -206,6 +220,7 @@ html, body, #root {
   padding: 14px;
   overflow-x: auto;
   margin-bottom: 0.9rem;
+  max-width: 100%;
 }
 
 .markdown-body pre code {
@@ -213,13 +228,18 @@ html, body, #root {
   padding: 0;
   color: #e2e8f0;
   font-size: 0.85rem;
+  word-break: normal;
+  white-space: pre;
 }
 
 .markdown-body table {
   width: 100%;
+  max-width: 100%;
   border-collapse: collapse;
   margin-bottom: 0.9rem;
   font-size: 0.9rem;
+  display: block;
+  overflow-x: auto;
 }
 
 .markdown-body th, .markdown-body td {
@@ -267,29 +287,40 @@ html, body, #root {
    RESPONSIVE SIDEBAR
    ========================================= */
 
-/* Desktop */
+/* Desktop (769px+) */
 .sidebar {
+  width: 320px;
+  min-width: 320px;
+  height: 100vh;
+  height: 100dvh;
+  background: var(--bg-secondary);
+  border-right: 1px solid var(--border-subtle);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 20px 16px;
+  z-index: 30;
   flex-shrink: 0;
   transform: translateX(0);
+  transition: transform var(--transition-normal);
 }
 
-/* Tablet + Mobile */
+/* Tablet & Mobile (<= 768px) */
 @media (max-width: 768px) {
   .sidebar {
     position: fixed !important;
     top: 0;
     left: 0;
     bottom: 0;
-
-    width: min(320px, 88vw) !important;
+    width: min(320px, 86vw) !important;
     min-width: 0 !important;
+    height: 100vh !important;
     height: 100dvh !important;
-
     transform: translateX(-105%);
     transition: transform var(--transition-normal);
-
-    overflow: hidden;
+    overflow-y: auto;
     box-shadow: var(--shadow-lg);
+    z-index: 40;
   }
 
   .sidebar.open {
@@ -297,17 +328,19 @@ html, body, #root {
   }
 }
 
-/* Small phones */
+/* Small Phones (<= 480px) */
 @media (max-width: 480px) {
   .sidebar {
     width: min(300px, 88vw) !important;
+    padding: 16px 12px !important;
   }
 }
 
-/* Very small phones */
+/* Extra Small Phones (<= 360px) */
 @media (max-width: 360px) {
   .sidebar {
-    width: 280px !important;
+    width: 275px !important;
+    padding: 14px 10px !important;
   }
 }
 
@@ -320,29 +353,53 @@ html, body, #root {
   width: 100%;
   max-width: 100%;
   overflow-x: hidden;
+  padding: 20px 0;
 }
 
-/* Tablet */
 @media (max-width: 768px) {
   .chat-container {
-    padding-top: 16px !important;
-    padding-bottom: 16px !important;
+    padding-top: 14px !important;
+    padding-bottom: 14px !important;
   }
 }
 
-/* Mobile */
 @media (max-width: 480px) {
   .chat-container {
-    padding-top: 12px !important;
-    padding-bottom: 12px !important;
+    padding-top: 10px !important;
+    padding-bottom: 10px !important;
   }
 }
 
-/* Small phones */
 @media (max-width: 360px) {
   .chat-container {
     padding-top: 8px !important;
     padding-bottom: 8px !important;
+  }
+}
+
+/* =========================================
+   MESSAGES RESPONSIVENESS
+   ========================================= */
+
+.message-item-wrapper {
+  padding: 0 16px;
+  max-width: 920px;
+  margin: 0 auto 20px auto;
+  width: 100%;
+  min-width: 0;
+}
+
+@media (max-width: 480px) {
+  .message-item-wrapper {
+    padding: 0 10px;
+    margin-bottom: 16px;
+  }
+}
+
+@media (max-width: 360px) {
+  .message-item-wrapper {
+    padding: 0 8px;
+    margin-bottom: 14px;
   }
 }
 
@@ -352,25 +409,29 @@ html, body, #root {
 
 .chat-input-wrapper {
   min-width: 0;
+  width: 100%;
+  max-width: 920px;
+  margin: 0 auto;
+  padding: 10px 16px 16px 16px;
 }
 
 /* Tablet */
 @media (max-width: 768px) {
   .chat-input-wrapper {
-    padding: 10px 12px 14px !important;
+    padding: 8px 12px 14px !important;
   }
 }
 
 /* Mobile */
 @media (max-width: 480px) {
   .chat-input-wrapper {
-    padding: 8px 10px 12px !important;
+    padding: 6px 10px 10px !important;
   }
 
   .chat-input-wrapper form {
     padding: 8px 10px !important;
     gap: 8px !important;
-    border-radius: 14px !important;
+    border-radius: 12px !important;
   }
 
   .chat-input-wrapper textarea {
@@ -379,20 +440,20 @@ html, body, #root {
 
   .chat-input-hint {
     font-size: 0.65rem !important;
-    margin-top: 6px !important;
+    margin-top: 5px !important;
   }
 }
 
-/* Small phones */
+/* Extra small phones (<= 360px) */
 @media (max-width: 360px) {
   .chat-input-wrapper {
-    padding-left: 8px !important;
-    padding-right: 8px !important;
+    padding: 5px 8px 8px !important;
   }
 
   .chat-input-wrapper form {
-    padding: 7px 8px !important;
+    padding: 6px 8px !important;
     gap: 6px !important;
+    border-radius: 10px !important;
   }
 
   .chat-input-wrapper textarea {

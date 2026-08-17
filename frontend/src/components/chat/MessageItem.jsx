@@ -1,12 +1,12 @@
 import React, { useState } from "react";
-import { Bot, User, Copy, Check, Sparkles } from "lucide-react";
+import { Bot, User, Copy, Check, Sparkles, Globe, X } from "lucide-react";
 import { RouteBadge } from "./RouteBadge";
 import { MarkdownRenderer } from "./MarkdownRenderer";
 import { SourcesSection } from "./SourcesSection";
 import { AgentDetailsModal } from "./AgentDetailsModal";
 import { formatTime } from "../../utils/formatters";
 
-export function MessageItem({ message }) {
+export function MessageItem({ message, onConfirmWebSearch, onDismissWebSearch }) {
   const [copied, setCopied] = useState(false);
   const isUser = message.sender === "user";
 
@@ -29,7 +29,7 @@ export function MessageItem({ message }) {
       >
         <div
           style={{
-            maxWidth: "80%",
+            maxWidth: "85%",
             display: "flex",
             flexDirection: "column",
             alignItems: "flex-end",
@@ -46,6 +46,7 @@ export function MessageItem({ message }) {
               lineHeight: 1.5,
               boxShadow: "0 4px 14px rgba(79, 70, 229, 0.25)",
               wordBreak: "break-word",
+              overflowWrap: "anywhere",
             }}
           >
             {message.content}
@@ -70,6 +71,7 @@ export function MessageItem({ message }) {
         maxWidth: "920px",
         margin: "0 auto 24px auto",
         width: "100%",
+        minWidth: 0,
       }}
     >
       {/* Assistant Avatar */}
@@ -97,6 +99,7 @@ export function MessageItem({ message }) {
       <div
         style={{
           flex: 1,
+          minWidth: 0,
           background: "var(--bg-card)",
           border: `1px solid ${message.isError ? "rgba(244, 63, 94, 0.3)" : "var(--border-card)"}`,
           borderRadius: "var(--radius-lg)",
@@ -142,6 +145,125 @@ export function MessageItem({ message }) {
 
         {/* Markdown Content */}
         <MarkdownRenderer content={message.content} />
+
+        {/* Interactive Web Search Prompt when document info is not found */}
+        {message.can_search_web && !message.actionTaken && (
+          <div
+            style={{
+              marginTop: "12px",
+              padding: "12px 14px",
+              background: "rgba(16, 185, 129, 0.08)",
+              border: "1px solid rgba(16, 185, 129, 0.22)",
+              borderRadius: "var(--radius-md)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              gap: "12px",
+              flexWrap: "wrap",
+            }}
+          >
+            <div style={{ display: "flex", alignItems: "center", gap: "8px", minWidth: "200px" }}>
+              <Globe size={15} color="#34d399" style={{ flexShrink: 0 }} />
+              <span style={{ fontSize: "0.82rem", color: "#e2e8f0", fontWeight: 500 }}>
+                Would you like to search the web for general/external information?
+              </span>
+            </div>
+
+            <div style={{ display: "flex", alignItems: "center", gap: "8px", flexShrink: 0 }}>
+              <button
+                type="button"
+                id="btn-confirm-web-search"
+                onClick={() =>
+                  onConfirmWebSearch?.(
+                    message.id,
+                    message.original_question || message.query
+                  )
+                }
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: "6px",
+                  padding: "6px 14px",
+                  borderRadius: "var(--radius-sm)",
+                  background: "var(--gradient-web)",
+                  color: "#ffffff",
+                  fontSize: "0.8rem",
+                  fontWeight: 600,
+                  border: "none",
+                  cursor: "pointer",
+                  boxShadow: "var(--shadow-glow-emerald)",
+                  transition: "opacity var(--transition-fast)",
+                }}
+                onMouseEnter={(e) => (e.currentTarget.style.opacity = "0.9")}
+                onMouseLeave={(e) => (e.currentTarget.style.opacity = "1")}
+              >
+                <Globe size={13} /> Yes, Search Web
+              </button>
+
+              <button
+                type="button"
+                id="btn-dismiss-web-search"
+                onClick={() => onDismissWebSearch?.(message.id)}
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: "4px",
+                  padding: "6px 12px",
+                  borderRadius: "var(--radius-sm)",
+                  background: "rgba(255, 255, 255, 0.05)",
+                  border: "1px solid var(--border-subtle)",
+                  color: "var(--text-secondary)",
+                  fontSize: "0.8rem",
+                  fontWeight: 500,
+                  cursor: "pointer",
+                  transition: "all var(--transition-fast)",
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = "rgba(255, 255, 255, 0.1)";
+                  e.currentTarget.style.color = "var(--text-primary)";
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = "rgba(255, 255, 255, 0.05)";
+                  e.currentTarget.style.color = "var(--text-secondary)";
+                }}
+              >
+                <X size={13} /> No
+              </button>
+            </div>
+          </div>
+        )}
+
+        {message.can_search_web && message.actionTaken === "no" && (
+          <div
+            style={{
+              marginTop: "8px",
+              fontSize: "0.78rem",
+              color: "var(--text-muted)",
+              display: "flex",
+              alignItems: "center",
+              gap: "6px",
+            }}
+          >
+            <X size={13} color="var(--text-muted)" />
+            <span>Web search dismissed.</span>
+          </div>
+        )}
+
+        {message.can_search_web && message.actionTaken === "yes" && (
+          <div
+            style={{
+              marginTop: "8px",
+              fontSize: "0.78rem",
+              color: "#34d399",
+              display: "flex",
+              alignItems: "center",
+              gap: "6px",
+            }}
+          >
+            <Globe size={13} color="#34d399" />
+            <span>Web search initiated.</span>
+          </div>
+        )}
 
         {/* Sources & Citations */}
         <SourcesSection
